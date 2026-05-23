@@ -7,10 +7,10 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg-color: #f4f6f9;
+            --bg-color: #f8fafc;
             --card-bg: #ffffff;
-            --text-main: #2c3e50;
-            --border-color: #dcdde1;
+            --text-main: #1e293b;
+            --border-color: #e2e8f0;
         }
         
         body {
@@ -27,64 +27,84 @@
             width: 100%;
             max-width: 1000px;
             background: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            padding: 28px;
             box-sizing: border-box;
         }
 
         h2 {
             margin-top: 0;
             font-size: 24px;
-            border-bottom: 2px solid var(--bg-color);
+            font-weight: 700;
+            border-bottom: 2px solid #f1f5f9;
             padding-bottom: 12px;
         }
 
         .grid-layout {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 24px;
+            gap: 28px;
             margin-top: 20px;
         }
 
         @media (min-width: 768px) {
             .grid-layout {
-                grid-template-columns: 350px 1fr;
+                grid-template-columns: 360px 1fr;
             }
         }
 
+        /* PANEL DE CONTROLES E ICONOS INTERNOS */
         .controls-panel {
-            background: var(--bg-color);
-            padding: 20px;
-            border-radius: 8px;
+            background: #f1f5f9;
+            padding: 24px;
+            border-radius: 12px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 24px;
         }
 
         .control-group {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
         }
 
-        label {
+        .label-with-icon {
+            display: flex;
+            align-items: center;
+            gap: 8px;
             font-weight: 600;
             font-size: 14px;
+            color: #334155;
+        }
+
+        .label-with-icon svg {
+            width: 18px;
+            height: 18px;
+            fill: #64748b;
         }
 
         .slider-data {
             display: flex;
             justify-content: space-between;
-            font-size: 12px;
-            color: #7f8c8d;
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .current-val {
+            font-weight: 700;
+            color: #0f172a;
         }
 
         input[type="range"] {
             width: 100%;
-            accent-color: #2ecc71;
+            accent-color: #10b981;
+            cursor: pointer;
         }
 
+        /* ESCENA URBANA INTEGRADA (DERECHA) */
         .visuals-panel {
             display: flex;
             flex-direction: column;
@@ -92,17 +112,17 @@
         }
 
         .preview-box {
-            height: 180px;
+            height: 220px;
             border: 1px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: 12px;
             position: relative;
             overflow: hidden;
-            background: #d5dbdb;
-            transition: background 0.5s ease;
+            background: #e2e8f0;
+            transition: background 0.6s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: flex-end;
             justify-content: space-around;
-            padding: 10px;
+            padding: 0 15px;
         }
 
         .urban-floor {
@@ -110,41 +130,81 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 25px;
-            background: #7f8c8d;
+            height: 35px;
+            background: #475569;
             z-index: 1;
+            border-top: 4px solid #334155;
         }
 
-        .tree-sim {
-            width: 40px;
-            background: #27ae60;
-            border-radius: 20px 20px 0 0;
-            transition: height 0.3s ease, background 0.5s ease;
-            position: relative;
-            z-index: 2;
-            margin-bottom: 15px;
-        }
-
-        .tree-trunk {
+        /* Iconos de calor ondulantes interactivos */
+        .heat-container {
             position: absolute;
-            bottom: -15px;
-            left: 15px;
+            top: 20px;
+            left: 0;
+            width: 100%;
+            height: 120px;
+            z-index: 2;
+            display: flex;
+            justify-content: space-around;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .heat-wave {
+            width: 24px;
+            height: 60px;
+            fill: #ef4444;
+            opacity: 0;
+            transition: transform 0.4s ease, opacity 0.4s ease;
+        }
+
+        /* Elementos del Vecindario (Casas Unifamiliares) */
+        .house-svg {
+            width: 65px;
+            height: 65px;
+            z-index: 3;
+            margin-bottom: 31px;
+            transition: filter 0.5s ease;
+        }
+
+        /* Elementos Dinámicos de Vegetación */
+        .tree-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 4;
+            margin-bottom: 31px;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+        }
+
+        .tree-crown-svg {
+            width: 50px;
+            height: 50px;
+            fill: #10b981;
+            transition: fill 0.5s ease, transform 0.4s ease;
+        }
+
+        .tree-trunk-svg {
             width: 10px;
-            height: 15px;
-            background: #795548;
+            height: 20px;
+            fill: #78350f;
         }
 
         .chart-box {
-            height: 250px;
+            height: 180px;
             position: relative;
         }
 
         .alert-box {
-            padding: 12px;
-            border-radius: 6px;
-            font-size: 13px;
+            padding: 16px;
+            border-radius: 10px;
+            font-size: 13.5px;
             font-weight: 500;
-            text-align: center;
+            line-height: 1.5;
+            text-align: left;
+            transition: all 0.4s ease;
+            border: 1px solid transparent;
         }
     </style>
 </head>
@@ -152,50 +212,77 @@
 
 <div class="dashboard-container">
     <h2>Simulador de Microclima e Isla de Calor Urbano</h2>
-    <p style="font-size: 14px; color: #57606f; margin: 0 0 20px 0;">
+    <p style="font-size: 14px; color: #64748b; margin: 0 0 24px 0; line-height: 1.5;">
         Modifica los parámetros ambientales de la cobertura vegetal para observar cómo la altura del dosel, la densidad y el vigor fotosintético (NDVI) mitigan la temperatura superficial (LST) en entornos urbanos.
     </p>
 
     <div class="grid-layout">
         <div class="controls-panel">
             <div class="control-group">
-                <label for="canopyHeight">Altura del Dosel</label>
+                <div class="label-with-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2L3 9h3v10h12V9h3L12 2zm0 4.18L16.82 10H14v7h-4v-7H7.18L12 6.18z"/></svg>
+                    <span>Altura del Dosel</span>
+                </div>
                 <input type="range" id="canopyHeight" min="0" max="40" value="15" step="1">
-                <div class="slider-data"><span>0m</span><span id="valCanopy">15m</span><span>40m</span></div>
+                <div class="slider-data"><span>0m</span><span class="current-val" id="valCanopy">15m</span><span>40m</span></div>
             </div>
 
             <div class="control-group">
-                <label for="surfaceArea">Superficie Arbórea</label>
+                <div class="label-with-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 3L2 12h3v8h5v-6h4v6h5v-8h3L12 3zm-2 11c0-1.1.9-2 2-2s2 .9 2 2h-4z"/></svg>
+                    <span>Superficie Arbórea</span>
+                </div>
                 <input type="range" id="surfaceArea" min="0" max="100" value="40" step="5">
-                <div class="slider-data"><span>0%</span><span id="valArea">40%</span><span>100%</span></div>
+                <div class="slider-data"><span>0%</span><span class="current-val" id="valArea">40%</span><span>100%</span></div>
             </div>
 
             <div class="control-group">
-                <label for="ndvi">Vigor de Vegetación (NDVI)</label>
+                <div class="label-with-icon">
+                    <svg viewBox="0 0 24 24"><path d="M17 8C14.5 5.5 10.3 5.4 7.7 7.7c-2.3 2.3-2.2 6.5.3 9s9.3 1.3 9.3 1.3-1.3-6.8-4.3-10z"/></svg>
+                    <span>Vigor de Vegetación (NDVI)</span>
+                </div>
                 <input type="range" id="ndvi" min="0.0" max="1.0" value="0.60" step="0.05">
-                <div class="slider-data"><span>0.0 (Suelo)</span><span id="valNdvi">0.60</span><span>1.0 (Denso)</span></div>
+                <div class="slider-data"><span>0.0 (Suelo)</span><span class="current-val" id="valNdvi">0.60</span><span>1.0 (Denso)</span></div>
             </div>
         </div>
 
         <div class="visuals-panel">
-            <div class="preview-box" id="envPreview">
+            <div class="preview-box" id="skyEnvironment">
+                <div class="heat-container">
+                    <svg class="heat-wave" id="wave1" viewBox="0 0 24 24"><path d="M12 24c-1.1 0-2-.9-2-2 0-2.2 1.5-3.5 2.5-4.4 1-.8 1.5-1.3 1.5-1.6 0-.3-.5-.8-1.5-1.6-1-.9-2.5-2.2-2.5-4.4 0-1.1.9-2 2-2s2 .9 2 2c0 2.2-1.5 3.5-2.5 4.4-1 .8-1.5 1.3-1.5 1.6 0 .3.5.8 1.5 1.6 1 .9 2.5 2.2 2.5 4.4 0 1.1-.9 2-2 2z"/></svg>
+                    <svg class="heat-wave" id="wave2" viewBox="0 0 24 24"><path d="M12 24c-1.1 0-2-.9-2-2 0-2.2 1.5-3.5 2.5-4.4 1-.8 1.5-1.3 1.5-1.6 0-.3-.5-.8-1.5-1.6-1-.9-2.5-2.2-2.5-4.4 0-1.1.9-2 2-2s2 .9 2 2c0 2.2-1.5 3.5-2.5 4.4-1 .8-1.5 1.3-1.5 1.6 0 .3.5.8 1.5 1.6 1 .9 2.5 2.2 2.5 4.4 0 1.1-.9 2-2 2z"/></svg>
+                    <svg class="heat-wave" id="wave3" viewBox="0 0 24 24"><path d="M12 24c-1.1 0-2-.9-2-2 0-2.2 1.5-3.5 2.5-4.4 1-.8 1.5-1.3 1.5-1.6 0-.3-.5-.8-1.5-1.6-1-.9-2.5-2.2-2.5-4.4 0-1.1.9-2 2-2s2 .9 2 2c0 2.2-1.5 3.5-2.5 4.4-1 .8-1.5 1.3-1.5 1.6 0 .3.5.8 1.5 1.6 1 .9 2.5 2.2 2.5 4.4 0 1.1-.9 2-2 2z"/></svg>
+                </div>
+                
+                <svg class="house-svg" id="houseA" viewBox="0 0 24 24"><path fill="#94a3b8" d="M12 3L2 12h3v8h14v-8h3L12 3zm-1 11H7v-4h4v4zm6 0h-4v-4h4v4z"/></svg>
+                
+                <div class="tree-container" id="tree1">
+                    <svg class="tree-crown-svg" viewBox="0 0 24 24"><path d="M12 2C9.24 2 7 4.24 7 7c0 .43.06.84.16 1.23C5.22 8.79 4 10.74 4 13c0 2.76 2.24 5 5 5h6c2.76 0 5-2.24 5-5 0-2.26-1.22-4.21-3.16-4.77.1-.39.16-.8.16-1.23 0-2.76-2.24-5-5-5z"/></svg>
+                    <div class="tree-trunk-svg"><svg viewBox="0 0 10 20"><rect width="10" height="20"/></svg></div>
+                </div>
+
+                <svg class="house-svg" id="houseB" viewBox="0 0 24 24"><path fill="#94a3b8" d="M12 3L2 12h3v8h14v-8h3L12 3zm-1 11H7v-4h4v4zm6 0h-4v-4h4v4z"/></svg>
+
+                <div class="tree-container" id="tree2">
+                    <svg class="tree-crown-svg" viewBox="0 0 24 24"><path d="M12 2C9.24 2 7 4.24 7 7c0 .43.06.84.16 1.23C5.22 8.79 4 10.74 4 13c0 2.76 2.24 5 5 5h6c2.76 0 5-2.24 5-5 0-2.26-1.22-4.21-3.16-4.77.1-.39.16-.8.16-1.23 0-2.76-2.24-5-5-5z"/></svg>
+                    <div class="tree-trunk-svg"><svg viewBox="0 0 10 20"><rect width="10" height="20"/></svg></div>
+                </div>
+
+                <svg class="house-svg" id="houseC" viewBox="0 0 24 24"><path fill="#94a3b8" d="M12 3L2 12h3v8h14v-8h3L12 3zm-1 11H7v-4h4v4zm6 0h-4v-4h4v4z"/></svg>
+
                 <div class="urban-floor"></div>
-                <div class="tree-sim" id="tree1"><div class="tree-trunk"></div></div>
-                <div class="tree-sim" id="tree2"><div class="tree-trunk"></div></div>
-                <div class="tree-sim" id="tree3"><div class="tree-trunk"></div></div>
             </div>
 
             <div class="chart-box">
                 <canvas id="temperatureChart"></canvas>
             </div>
 
-            <div class="alert-box" id="diagnosticBox">Calculando condiciones ambientales...</div>
+            <div class="alert-box" id="diagnosticBox">Calculando métricas ambientales urbanas...</div>
         </div>
     </div>
 </div>
 
 <script>
-    // Inicialización de elementos del DOM
     const sliderCanopy = document.getElementById('canopyHeight');
     const sliderArea = document.getElementById('surfaceArea');
     const sliderNdvi = document.getElementById('ndvi');
@@ -204,25 +291,28 @@
     const txtArea = document.getElementById('valArea');
     const txtNdvi = document.getElementById('valNdvi');
 
-    const envPreview = document.getElementById('envPreview');
+    const skyEnv = document.getElementById('skyEnvironment');
     const diagnosticBox = document.getElementById('diagnosticBox');
-    const trees = [document.getElementById('tree1'), document.getElementById('tree2'), document.getElementById('tree3')];
+    
+    const tree1 = document.getElementById('tree1');
+    const tree2 = document.getElementById('tree2');
+    const crowns = document.querySelectorAll('.tree-crown-svg');
+    const waves = [document.getElementById('wave1'), document.getElementById('wave2'), document.getElementById('wave3')];
+    const houses = [document.getElementById('houseA'), document.getElementById('houseB'), document.getElementById('houseC')];
 
-    // Configuración Base de las Variables del Modelo
-    const baseLst = 42.0; // Temperatura base de asfalto expuesto en Ciudad de Panamá (°C)
+    const baseLst = 43.0; // Temperatura base de asfalto radiante en Ciudad de Panamá
 
-    // Inicialización del Gráfico de Chart.js
+    // Configuración del Gráfico Horizontal (Chart.js)
     const ctx = document.getElementById('temperatureChart').getContext('2d');
     const tempChart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['Temperatura de la Superficie (LST °C)'],
+            labels: ['Temperatura de la Superficie (LST)'],
             datasets: [{
-                label: 'Temperatura Estimada',
-                data: [35],
-                backgroundColor: ['#e74c3c'],
+                data: [34.5],
+                backgroundColor: ['#f59e0b'],
                 borderRadius: 6,
-                barThickness: 50
+                barThickness: 35
             }]
         },
         options: {
@@ -231,81 +321,105 @@
             maintainAspectRatio: false,
             plugins: { legend: { display: false } },
             scales: {
-                x: { min: 20, max: 45, title: { display: true, text: 'Temperatura (°C)' } },
+                x: { min: 20, max: 46, title: { display: true, text: 'Temperatura Superficial del Suelo (°C)', font: { weight: 'bold' } } },
                 y: { display: false }
             }
         }
     });
 
-    // Función Principal de Simulación Matemática y Visual
     function actualizarSimulacion() {
         const h = parseFloat(sliderCanopy.value);
         const area = parseFloat(sliderArea.value);
         const ndvi = parseFloat(sliderNdvi.value);
 
-        // Actualizar textos informativos de los deslizadores
+        // Actualizar textos dinámicos de los sliders
         txtCanopy.innerText = h + 'm';
         txtArea.innerText = area + '%';
         txtNdvi.innerText = ndvi.toFixed(2);
 
-        // Modelo Físico No Lineal para estimar la LST
-        // El dosel sombrea, el área distribuye, el NDVI evapotranspira activamente
-        let lstCalculada = baseLst - (0.15 * h) - (0.08 * area) - (8.5 * ndvi);
-        lstCalculada = Math.max(22, Math.min(45, lstCalculada)); // Acotación por realismo ambiental
+        // Algoritmo Físico no lineal de balance térmico para Panamá
+        let lstCalculada = baseLst - (0.16 * h) - (0.07 * area) - (9.0 * ndvi);
+        lstCalculada = Math.max(21, Math.min(46, lstCalculada));
 
-        // Actualizar datos del gráfico
         tempChart.data.datasets[0].data[0] = lstCalculada.toFixed(1);
-        
-        // Cambiar dinámicamente el color del termómetro según el estrés térmico
-        if (lstCalculada > 36) {
-            tempChart.data.datasets[0].backgroundColor = ['#e74c3c']; // Rojo Isla de Calor Severa
-            diagnosticBox.style.backgroundColor = '#fce4e4';
-            diagnosticBox.style.color = '#c0392b';
-            diagnosticBox.innerText = '🔴 Isla de Calor Crítica: Escasa cobertura vegetal y asfalto expuesto.';
-            envPreview.style.backgroundColor = '#f39c12'; // Suelo caliente irradiando
-        } else if (lstCalculada > 30) {
-            tempChart.data.datasets[0].backgroundColor = ['#f1c40f']; // Amarillo intermedio
-            diagnosticBox.style.backgroundColor = '#fef9e7';
-            diagnosticBox.style.color = '#d4ac0d';
-            diagnosticBox.innerText = '🟡 Microclima Moderado: Mitigación térmica urbana parcial por áreas verdes abiertas.';
-            envPreview.style.backgroundColor = '#d5dbdb';
+
+        // CONTROL DE LAS ONDAS DE CALOR Y AMBIENTE SEGÚN LA LST CALCULADA
+        if (lstCalculada > 36.5) {
+            // Estado 1: Calor Crítico (Isla de calor)
+            tempChart.data.datasets[0].backgroundColor = ['#ef4444']; // Rojo
+            skyEnv.style.backgroundColor = '#ffedd5'; // Cielo sofocante naranja/rojo
+            diagnosticBox.style.backgroundColor = '#fef2f2';
+            diagnosticBox.style.borderColor = '#fee2e2';
+            diagnosticBox.style.color = '#991b1b';
+            diagnosticBox.innerText = '🔴 Isla de Calor Crítica: Escasa cobertura vegetal y asfalto expuesto absorbiendo radiación solar masiva.';
+            
+            // Activar todas las ondas de calor y agitar visualmente
+            waves.forEach((w, idx) => {
+                w.style.opacity = '0.8';
+                w.style.transform = `translateY(-10px) scale(${1 + idx*0.1})`;
+            });
+            houses.forEach(h => h.style.filter = 'drop-shadow(0 0 6px rgba(239,68,68,0.3))');
+        } else if (lstCalculada > 29.5) {
+            // Estado 2: Microclima Amortiguado (El amarillo de la imagen)
+            tempChart.data.datasets[0].backgroundColor = ['#f59e0b']; // Amarillo/Ámbar
+            skyEnv.style.backgroundColor = '#cbd5e1'; // Gris urbano balanceado
+            diagnosticBox.style.backgroundColor = '#fffbeb';
+            diagnosticBox.style.borderColor = '#fef3c7';
+            diagnosticBox.style.color = '#92400e';
+            diagnosticBox.innerText = '🟡 Microclima Moderado: Mitigación térmica urbana parcial por áreas verdes abiertas o árboles jóvenes.';
+            
+            // Ondas de calor tenues
+            waves.forEach((w, idx) => {
+                w.style.opacity = idx === 1 ? '0.4' : '0';
+                w.style.transform = 'translateY(0px)';
+            });
+            houses.forEach(h => h.style.filter = 'none');
         } else {
-            tempChart.data.datasets[0].backgroundColor = ['#2ecc71']; // Verde Confort
-            diagnosticBox.style.backgroundColor = '#e8f8f5';
-            diagnosticBox.style.color = '#117a65';
-            diagnosticBox.innerText = '🟢 Zona de Confort Térmico: Efecto combinado óptimo de sombra por dosel alto y evapotranspiración.';
-            envPreview.style.backgroundColor = '#aed6f1'; // Clima fresco simulado
+            // Estado 3: Zona de Confort Fresca
+            tempChart.data.datasets[0].backgroundColor = ['#10b981']; // Verde
+            skyEnv.style.backgroundColor = '#e0f2fe'; // Cielo fresco azul
+            diagnosticBox.style.backgroundColor = '#f0fdf4';
+            diagnosticBox.style.borderColor = '#dcfce7';
+            diagnosticBox.style.color = '#166534';
+            diagnosticBox.innerText = '🟢 Zona de Confort Térmico: Efecto combinado óptimo de sombra por dosel maduro alto y enfriamiento evaporativo activo.';
+            
+            // Desaparecer ondas de calor
+            waves.forEach(w => w.style.opacity = '0');
+            houses.forEach(h => h.style.filter = 'none');
         }
         tempChart.update();
 
-        // Actualizar simulación de geometría física (Los árboles del perfil urbano)
-        trees.forEach((tree, index) => {
-            // Control de existencia del árbol basado en el porcentaje de superficie arbórea
-            if (area === 0 || (index === 1 && area < 35) || (index === 2 && area < 70)) {
-                tree.style.opacity = '0';
-                tree.style.height = '0px';
+        // CONTROL DINÁMICO DE LOS ÁRBOLES (Altura, Densidad y NDVI cromático)
+        // A. Densidad horizontal (Aparecen según el % de Superficie Arbórea)
+        tree1.style.opacity = area >= 30 ? '1' : '0';
+        tree1.style.transform = area >= 30 ? 'scale(1)' : 'scale(0)';
+        
+        tree2.style.opacity = area >= 70 ? '1' : '0';
+        tree2.style.transform = area >= 70 ? 'scale(1)' : 'scale(0)';
+
+        // B. Altura (Modificación de escala vertical del contenedor del árbol)
+        const alturaPixeles = (h * 3.5) + 30; // Escalado base matemático para el visor
+        if(area >= 30) tree1.style.height = alturaPixeles + 'px';
+        if(area >= 70) tree2.style.height = alturaPixeles + 'px';
+
+        // C. Color según Vigor Fotosintético (NDVI)
+        crowns.forEach(crown => {
+            if (ndvi < 0.3) {
+                crown.style.fill = '#b45309'; // Vegetación seca / degradada (marrón)
+            } else if (ndvi < 0.65) {
+                crown.style.fill = '#84cc16'; // Verde claro / intermedia
             } else {
-                tree.style.opacity = '1';
-                tree.style.height = (h * 3.5 + 20) + 'px'; // Escalado visual dinámico
-                
-                // Mezcla de color del árbol basado en el vigor fotosintético (NDVI)
-                if (ndvi < 0.3) {
-                    tree.style.backgroundColor = '#cb4335'; // Árbol seco o enfermo
-                } else if (ndvi < 0.6) {
-                    tree.style.backgroundColor = '#f39c12'; // Otoñal / estrés hídrico bajo
-                } else {
-                    tree.style.backgroundColor = '#27ae60'; // Bosque tropical sano
-                }
+                crown.style.fill = '#047857'; // Verde selva maduro / húmedo
             }
         });
     }
 
-    // Vinculación de eventos interactivos para actualización en tiempo real
+    // Vinculación de listeners en tiempo real
     sliderCanopy.addEventListener('input', actualizarSimulacion);
     sliderArea.addEventListener('input', actualizarSimulacion);
     sliderNdvi.addEventListener('input', actualizarSimulacion);
 
-    // Ejecución inicial al cargar el navegador
+    // Inicialización al vuelo de la aplicación
     actualizarSimulacion();
 </script>
 
