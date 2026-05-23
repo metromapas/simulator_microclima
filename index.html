@@ -3,351 +3,310 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Explorador de Microclima Urbano</title>
+    <title>Simulador de Microclima e Isla de Calor Urbano</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg-main: #f8fafc;
+            --bg-color: #f4f6f9;
             --card-bg: #ffffff;
-            --text-dark: #1e293b;
-            --border-light: #e2e8f0;
-            --primary-green: #10b981;
+            --text-main: #2c3e50;
+            --border-color: #dcdde1;
         }
         
         body {
             font-family: '-apple-system', BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-main);
-            color: var(--text-dark);
+            background-color: var(--bg-color);
+            color: var(--text-main);
             margin: 0;
-            padding: 16px;
+            padding: 20px;
             display: flex;
             justify-content: center;
-            align-items: center;
         }
 
         .dashboard-container {
             width: 100%;
-            max-width: 950px;
+            max-width: 1000px;
             background: var(--card-bg);
-            border-radius: 16px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-            padding: 28px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 24px;
             box-sizing: border-box;
         }
 
-        .header-section {
-            margin-bottom: 24px;
-        }
-
         h2 {
-            margin: 0 0 8px 0;
-            font-size: 22px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
+            margin-top: 0;
+            font-size: 24px;
+            border-bottom: 2px solid var(--bg-color);
+            padding-bottom: 12px;
         }
 
-        .subtitle {
-            font-size: 14px;
-            color: #64748b;
-            margin: 0;
-            line-height: 1.5;
-        }
-
-        .main-grid {
+        .grid-layout {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 28px;
+            gap: 24px;
+            margin-top: 20px;
         }
 
         @media (min-width: 768px) {
-            .main-grid {
-                grid-template-columns: 1.2fr 1fr;
+            .grid-layout {
+                grid-template-columns: 350px 1fr;
             }
         }
 
-        /* CONFIGURACIÓN DEL PERFIL URBANO INTERACTIVO (IZQUIERDA) */
-        .profile-column {
+        .controls-panel {
+            background: var(--bg-color);
+            padding: 20px;
+            border-radius: 8px;
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
 
-        .profile-canvas {
-            height: 220px;
-            border: 1px solid var(--border-light);
-            border-radius: 12px;
-            position: relative;
-            overflow: hidden;
-            background: #e2e8f0;
-            transition: background 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-around;
-            padding: 0 20px;
-        }
-
-        .asphalt-ground {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 30px;
-            background: #475569;
-            z-index: 1;
-            border-top: 4px solid #334155;
-        }
-
-        .interactive-tree {
-            width: 55px;
-            background: var(--primary-green);
-            border-radius: 30px 30px 0 0;
-            transition: height 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.6s ease, opacity 0.3s ease;
-            position: relative;
-            z-index: 2;
-            margin-bottom: 26px;
-            box-shadow: inset -6px 0 0 rgba(0,0,0,0.06);
-        }
-
-        .trunk {
-            position: absolute;
-            bottom: -26px;
-            left: 21px;
-            width: 12px;
-            height: 26px;
-            background: #b45309;
-        }
-
-        /* CONTROLES ESTILIZADOS */
-        .controls-card {
-            background: #f1f5f9;
-            padding: 22px;
-            border-radius: 12px;
+        .control-group {
             display: flex;
             flex-direction: column;
-            gap: 18px;
+            gap: 8px;
         }
 
-        .input-block {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .input-block label {
-            font-size: 13px;
+        label {
             font-weight: 600;
-            color: #334155;
+            font-size: 14px;
         }
 
-        .slider-meta {
+        .slider-data {
             display: flex;
             justify-content: space-between;
             font-size: 12px;
-            color: #64748b;
-            font-variant-numeric: tabular-nums;
-        }
-
-        .current-value {
-            font-weight: 700;
-            color: #0f172a;
+            color: #7f8c8d;
         }
 
         input[type="range"] {
             width: 100%;
-            accent-color: #10b981;
-            cursor: pointer;
+            accent-color: #2ecc71;
         }
 
-        /* PANEL DE RESPUESTA TÉRMICA (DERECHA) */
-        .metrics-column {
+        .visuals-panel {
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
             gap: 20px;
         }
 
-        .chart-container {
-            height: 280px;
+        .preview-box {
+            height: 180px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
             position: relative;
-            width: 100%;
+            overflow: hidden;
+            background: #d5dbdb;
+            transition: background 0.5s ease;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            padding: 10px;
         }
 
-        .feedback-badge {
-            padding: 16px;
-            border-radius: 10px;
-            font-size: 13.5px;
+        .urban-floor {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 25px;
+            background: #7f8c8d;
+            z-index: 1;
+        }
+
+        .tree-sim {
+            width: 40px;
+            background: #27ae60;
+            border-radius: 20px 20px 0 0;
+            transition: height 0.3s ease, background 0.5s ease;
+            position: relative;
+            z-index: 2;
+            margin-bottom: 15px;
+        }
+
+        .tree-trunk {
+            position: absolute;
+            bottom: -15px;
+            left: 15px;
+            width: 10px;
+            height: 15px;
+            background: #795548;
+        }
+
+        .chart-box {
+            height: 250px;
+            position: relative;
+        }
+
+        .alert-box {
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 13px;
             font-weight: 500;
-            line-height: 1.5;
-            text-align: left;
-            transition: all 0.4s ease;
-            border: 1px solid transparent;
+            text-align: center;
         }
     </style>
 </head>
 <body>
 
 <div class="dashboard-container">
-    <div class="header-section">
-        <h2>Explorador de Microclima Urbano</h2>
-        <p class="subtitle">Interacción multivariable entre la estructura forestal y el comportamiento térmico superficial para el análisis de islas de calor.</p>
-    </div>
+    <h2>Simulador de Microclima e Isla de Calor Urbano</h2>
+    <p style="font-size: 14px; color: #57606f; margin: 0 0 20px 0;">
+        Modifica los parámetros ambientales de la cobertura vegetal para observar cómo la altura del dosel, la densidad y el vigor fotosintético (NDVI) mitigan la temperatura superficial (LST) en entornos urbanos.
+    </p>
 
-    <div class="main-grid">
-        <div class="profile-column">
-            <div class="profile-canvas" id="skyEnvironment">
-                <div class="asphalt-ground"></div>
-                <div class="interactive-tree" id="treeAlpha"><div class="trunk"></div></div>
-                <div class="interactive-tree" id="treeBeta"><div class="trunk"></div></div>
-                <div class="interactive-tree" id="treeGamma"><div class="trunk"></div></div>
+    <div class="grid-layout">
+        <div class="controls-panel">
+            <div class="control-group">
+                <label for="canopyHeight">Altura del Dosel</label>
+                <input type="range" id="canopyHeight" min="0" max="40" value="15" step="1">
+                <div class="slider-data"><span>0m</span><span id="valCanopy">15m</span><span>40m</span></div>
             </div>
 
-            <div class="controls-card">
-                <div class="input-block">
-                    <div class="slider-meta"><span>Altura del Dosel</span><span class="current-value" id="labelCanopy">15m</span></div>
-                    <input type="range" id="paramCanopy" min="0" max="40" value="15" step="1">
-                    <div class="slider-data" style="display:flex; justify-content:space-between; font-size:10px; color:#94a3b8;"><span>0m (Suelo)</span><span>40m (Bosque Maduro)</span></div>
-                </div>
+            <div class="control-group">
+                <label for="surfaceArea">Superficie Arbórea</label>
+                <input type="range" id="surfaceArea" min="0" max="100" value="40" step="5">
+                <div class="slider-data"><span>0%</span><span id="valArea">40%</span><span>100%</span></div>
+            </div>
 
-                <div class="input-block">
-                    <div class="slider-meta"><span>Superficie Arbórea</span><span class="current-value" id="labelArea">40%</span></div>
-                    <input type="range" id="paramArea" min="0" max="100" value="40" step="5">
-                    <div class="slider-data" style="display:flex; justify-content:space-between; font-size:10px; color:#94a3b8;"><span>0% (Gris)</span><span>100% (Continuo)</span></div>
-                </div>
-
-                <div class="input-block">
-                    <div class="slider-meta"><span>Vigor de Vegetación (NDVI)</span><span class="current-value" id="labelNdvi">0.60</span></div>
-                    <input type="range" id="paramNdvi" min="0.0" max="1.0" value="0.60" step="0.05">
-                    <div class="slider-data" style="display:flex; justify-content:space-between; font-size:10px; color:#94a3b8;"><span>0.0 (Inerte)</span><span>1.0 (Máxima Actividad)</span></div>
-                </div>
+            <div class="control-group">
+                <label for="ndvi">Vigor de Vegetación (NDVI)</label>
+                <input type="range" id="ndvi" min="0.0" max="1.0" value="0.60" step="0.05">
+                <div class="slider-data"><span>0.0 (Suelo)</span><span id="valNdvi">0.60</span><span>1.0 (Denso)</span></div>
             </div>
         </div>
 
-        <div class="metrics-column">
-            <div class="chart-container">
-                <canvas id="thermometerChart"></canvas>
+        <div class="visuals-panel">
+            <div class="preview-box" id="envPreview">
+                <div class="urban-floor"></div>
+                <div class="tree-sim" id="tree1"><div class="tree-trunk"></div></div>
+                <div class="tree-sim" id="tree2"><div class="tree-trunk"></div></div>
+                <div class="tree-sim" id="tree3"><div class="tree-trunk"></div></div>
             </div>
-            <div class="feedback-badge" id="statusPanel">Inicializando estación telemática...</div>
+
+            <div class="chart-box">
+                <canvas id="temperatureChart"></canvas>
+            </div>
+
+            <div class="alert-box" id="diagnosticBox">Calculando condiciones ambientales...</div>
         </div>
     </div>
 </div>
 
 <script>
-    // Referencias de la interfaz
-    const pCanopy = document.getElementById('paramCanopy');
-    const pArea = document.getElementById('paramArea');
-    const pNdvi = document.getElementById('paramNdvi');
+    // Inicialización de elementos del DOM
+    const sliderCanopy = document.getElementById('canopyHeight');
+    const sliderArea = document.getElementById('surfaceArea');
+    const sliderNdvi = document.getElementById('ndvi');
 
-    const lCanopy = document.getElementById('labelCanopy');
-    const lArea = document.getElementById('labelArea');
-    const lNdvi = document.getElementById('labelNdvi');
+    const txtCanopy = document.getElementById('valCanopy');
+    const txtArea = document.getElementById('valArea');
+    const txtNdvi = document.getElementById('valNdvi');
 
-    const skyEnv = document.getElementById('skyEnvironment');
-    const statusPanel = document.getElementById('statusPanel');
-    const vectorTrees = [document.getElementById('treeAlpha'), document.getElementById('treeBeta'), document.getElementById('treeGamma')];
+    const envPreview = document.getElementById('envPreview');
+    const diagnosticBox = document.getElementById('diagnosticBox');
+    const trees = [document.getElementById('tree1'), document.getElementById('tree2'), document.getElementById('tree3')];
 
-    // Constante térmica base de asfalto radiante
-    const T_BASE = 43.0;
+    // Configuración Base de las Variables del Modelo
+    const baseLst = 42.0; // Temperatura base de asfalto expuesto en Ciudad de Panamá (°C)
 
-    // Inicialización del Termómetro Vertical usando Chart.js
-    const ctx = document.getElementById('thermometerChart').getContext('2d');
-    const thermoChart = new Chart(ctx, {
+    // Inicialización del Gráfico de Chart.js
+    const ctx = document.getElementById('temperatureChart').getContext('2d');
+    const tempChart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['Temperatura de la Superficie (LST)'],
+            labels: ['Temperatura de la Superficie (LST °C)'],
             datasets: [{
-                data: [34.2],
-                backgroundColor: '#f59e0b',
-                borderRadius: 8,
-                borderWidth: 0,
-                barPercentage: 0.6
+                label: 'Temperatura Estimada',
+                data: [35],
+                backgroundColor: ['#e74c3c'],
+                borderRadius: 6,
+                barThickness: 50
             }]
         },
         options: {
+            indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
             plugins: { legend: { display: false } },
             scales: {
-                y: { min: 15, max: 48, title: { display: true, text: 'Temperatura Superficial (°C)' }, ticks: { font: { family: 'monospace' } } },
-                x: { grid: { display: false } }
+                x: { min: 20, max: 45, title: { display: true, text: 'Temperatura (°C)' } },
+                y: { display: false }
             }
         }
     });
 
-    // Modelo de Simulación Dinámica
-    function simularMicroclima() {
-        const hc = parseFloat(pCanopy.value);
-        const sa = parseFloat(pArea.value);
-        const nv = parseFloat(pNdvi.value);
+    // Función Principal de Simulación Matemática y Visual
+    function actualizarSimulacion() {
+        const h = parseFloat(sliderCanopy.value);
+        const area = parseFloat(sliderArea.value);
+        const ndvi = parseFloat(sliderNdvi.value);
 
-        // Actualizar etiquetas
-        lCanopy.innerText = hc + 'm';
-        lArea.innerText = sa + '%';
-        lNdvi.innerText = nv.toFixed(2);
+        // Actualizar textos informativos de los deslizadores
+        txtCanopy.innerText = h + 'm';
+        txtArea.innerText = area + '%';
+        txtNdvi.innerText = ndvi.toFixed(2);
 
-        // Algoritmo de Balance Térmico
-        let lst = T_BASE - (0.18 * hc) - (0.07 * sa) - (9.5 * nv);
-        lst = Math.max(18, Math.min(48, lst));
+        // Modelo Físico No Lineal para estimar la LST
+        // El dosel sombrea, el área distribuye, el NDVI evapotranspira activamente
+        let lstCalculada = baseLst - (0.15 * h) - (0.08 * area) - (8.5 * ndvi);
+        lstCalculada = Math.max(22, Math.min(45, lstCalculada)); // Acotación por realismo ambiental
 
-        thermoChart.data.datasets[0].data[0] = lst.toFixed(1);
-
-        // Lógica de Estados: Colores del cielo, alertas y barras
-        if (lst > 36.5) {
-            // Estado Crítico: Isla de calor severa
-            thermoChart.data.datasets[0].backgroundColor = '#ef4444'; // Rojo
-            skyEnv.style.backgroundColor = '#ffedd5'; // Cielo desértico/cálido
-            statusPanel.innerText = '🔴 ISLA DE CALOR CRÍTICA: La ausencia de dosel forestal alto y un bajo índice de vegetación generan una acumulación calórica severa en la superficie urbana.';
-            statusPanel.style.backgroundColor = '#fef2f2';
-            statusPanel.style.borderColor = '#fee2e2';
-            statusPanel.style.color = '#991b1b';
-        } else if (lst > 29.5) {
-            // Estado Intermedio: Zona amortiguada
-            thermoChart.data.datasets[0].backgroundColor = '#f59e0b'; // Ámbar
-            skyEnv.style.backgroundColor = '#f1f5f9'; // Cielo grisáceo estándar
-            statusPanel.innerText = '🟡 MICROCLIMA AMORTIGUADO: Cobertura herbácea o parches verdes fragmentados reducen parcialmente la radiación, pero falta sombra estructural (dosel).';
-            statusPanel.style.backgroundColor = '#fffbeb';
-            statusPanel.style.borderColor = '#fef3c7';
-            statusPanel.style.color = '#92400e';
+        // Actualizar datos del gráfico
+        tempChart.data.datasets[0].data[0] = lstCalculada.toFixed(1);
+        
+        // Cambiar dinámicamente el color del termómetro según el estrés térmico
+        if (lstCalculada > 36) {
+            tempChart.data.datasets[0].backgroundColor = ['#e74c3c']; // Rojo Isla de Calor Severa
+            diagnosticBox.style.backgroundColor = '#fce4e4';
+            diagnosticBox.style.color = '#c0392b';
+            diagnosticBox.innerText = '🔴 Isla de Calor Crítica: Escasa cobertura vegetal y asfalto expuesto.';
+            envPreview.style.backgroundColor = '#f39c12'; // Suelo caliente irradiando
+        } else if (lstCalculada > 30) {
+            tempChart.data.datasets[0].backgroundColor = ['#f1c40f']; // Amarillo intermedio
+            diagnosticBox.style.backgroundColor = '#fef9e7';
+            diagnosticBox.style.color = '#d4ac0d';
+            diagnosticBox.innerText = '🟡 Microclima Moderado: Mitigación térmica urbana parcial por áreas verdes abiertas.';
+            envPreview.style.backgroundColor = '#d5dbdb';
         } else {
-            // Estado Óptimo: Isla de enfriamiento
-            thermoChart.data.datasets[0].backgroundColor = '#10b981'; // Verde
-            skyEnv.style.backgroundColor = '#e0f2fe'; // Cielo fresco/azul claro
-            statusPanel.innerText = '🟢 EFECTO MICROCLIMÁTICO ÓPTIMO: Estructura forestal madura detectada. La combinación de la sombra física del dosel alto y la evapotranspiración activa reduce la temperatura.';
-            statusPanel.style.backgroundColor = '#f0fdf4';
-            statusPanel.style.borderColor = '#dcfce7';
-            statusPanel.style.color = '#166534';
+            tempChart.data.datasets[0].backgroundColor = ['#2ecc71']; // Verde Confort
+            diagnosticBox.style.backgroundColor = '#e8f8f5';
+            diagnosticBox.style.color = '#117a65';
+            diagnosticBox.innerText = '🟢 Zona de Confort Térmico: Efecto combinado óptimo de sombra por dosel alto y evapotranspiración.';
+            envPreview.style.backgroundColor = '#aed6f1'; // Clima fresco simulado
         }
-        thermoChart.update();
+        tempChart.update();
 
-        // Control geométrico y cromático de la vegetación (Perfil Urbano)
-        vectorTrees.forEach((tree, i) => {
-            // Validar densidad horizontal según porcentaje de área arbórea
-            if (sa === 0 || (i === 1 && sa < 35) || (i === 2 && sa < 70)) {
+        // Actualizar simulación de geometría física (Los árboles del perfil urbano)
+        trees.forEach((tree, index) => {
+            // Control de existencia del árbol basado en el porcentaje de superficie arbórea
+            if (area === 0 || (index === 1 && area < 35) || (index === 2 && area < 70)) {
                 tree.style.opacity = '0';
-                tree.style.transform = 'scale(0)';
+                tree.style.height = '0px';
             } else {
                 tree.style.opacity = '1';
-                tree.style.transform = 'scale(1)';
-                tree.style.height = (hc * 3.8 + 30) + 'px'; // Altura física reactiva
-
-                // Color de la copa según el vigor fotosintético (NDVI)
-                if (nv < 0.35) {
-                    tree.style.backgroundColor = '#b45309'; // Vegetación seca/estresada
-                } else if (nv < 0.65) {
-                    tree.style.backgroundColor = '#84cc16'; // Verde claro intermedio
+                tree.style.height = (h * 3.5 + 20) + 'px'; // Escalado visual dinámico
+                
+                // Mezcla de color del árbol basado en el vigor fotosintético (NDVI)
+                if (ndvi < 0.3) {
+                    tree.style.backgroundColor = '#cb4335'; // Árbol seco o enfermo
+                } else if (ndvi < 0.6) {
+                    tree.style.backgroundColor = '#f39c12'; // Otoñal / estrés hídrico bajo
                 } else {
-                    tree.style.backgroundColor = '#047857'; // Verde selva denso/saludable
+                    tree.style.backgroundColor = '#27ae60'; // Bosque tropical sano
                 }
             }
         });
     }
 
-    // Escuchadores de eventos
-    pCanopy.addEventListener('input', simularMicroclima);
-    pArea.addEventListener('input', simularMicroclima);
-    pNdvi.addEventListener('input', simularMicroclima);
+    // Vinculación de eventos interactivos para actualización en tiempo real
+    sliderCanopy.addEventListener('input', actualizarSimulacion);
+    sliderArea.addEventListener('input', actualizarSimulacion);
+    sliderNdvi.addEventListener('input', actualizarSimulacion);
 
-    // Inicialización
-    simularMicroclima();
+    // Ejecución inicial al cargar el navegador
+    actualizarSimulacion();
 </script>
 
 </body>
